@@ -1,0 +1,13 @@
+Cfiles
+test.bin
+!millepede.txt
+
+Parameter
+1 0.0 -1.0
+50 0.0 -1.0
+
+threads 20
+
+method inversion       30 0.001 ! Gauss matrix inversion
+
+end
