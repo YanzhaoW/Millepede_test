@@ -27,18 +27,18 @@ class Detector
     explicit Detector(TRandom3* rnd, int num_of_bars = DEFAULT_BAR_NUM);
     void generate_signals(Line line, std::vector<Signal>& output_signals) const;
 
-    void set_offsets(const std::vector<float>& offsets);
+    void set_offsets(const std::vector<std::pair<float, float>>& offsets);
     void set_err_y(float val) { error_y_ = val; }
 
     [[nodiscard]] auto get_bar_size() const -> int { return num_of_bars_; }
-    [[nodiscard]] auto get_offsets() const -> std::vector<float> { return offsets_; }
+    [[nodiscard]] auto get_pars() const -> std::vector<std::pair<float, float>> { return scale_offsets_; }
 
   private:
     int num_of_bars_ = 0;
     float bar_width_ = 5.0;
     float bar_length_ = 50.0;
     float error_y_ = 4.0;
-    std::vector<float> offsets_;
+    std::vector<std::pair<float, float>> scale_offsets_;
     TRandom3* rnd_ = nullptr;
 };
 

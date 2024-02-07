@@ -3,7 +3,6 @@
 #include <fmt/format.h>
 #include <vector>
 
-
 void EventBuilder::reset()
 {
     event_data_.locals.clear();
@@ -23,7 +22,7 @@ void EventBuilder::init()
     auto input_file = std::ifstream(offset_filename, std::ios_base::in);
     if (input_file.is_open())
     {
-        auto offsets = std::vector<float>{};
+        auto offsets = std::vector<std::pair<float, float>>{};
         json data = json::parse(input_file);
         data.get_to(offsets);
         if (offsets.size() == bar_size)
@@ -35,19 +34,20 @@ void EventBuilder::init()
     detector_.set_offsets(generate_offset_file(offset_filename));
 }
 
-auto EventBuilder::generate_offset_file(std::string_view filename) -> std::vector<float>
+auto EventBuilder::generate_offset_file(std::string_view filename) -> std::vector<std::pair<float, float>>
 {
     auto output_file = std::ofstream{ filename, std::ios_base::trunc | std::ios_base::out };
     auto bar_size = detector_.get_bar_size();
-    auto offsets = std::vector<float>{};
+    auto offsets = std::vector<std::pair<float, float>>{};
     offsets.resize(bar_size);
 
-    for (auto& offset : offsets)
+    for (auto& [scale, offset] : offsets)
     {
+        scale = static_cast<float>(rnd_.Uniform(scale_range_ - 0.001, scale_range_));
         offset = static_cast<float>(rnd_.Uniform(-offset_range_, offset_range_));
     }
-    offsets.front() = 0.F;
-    offsets.back() = 0.F;
+    offsets.front().second = 0.F;
+    offsets.back().second = 0.F;
     auto json_vec = json(offsets);
     output_file << json_vec.dump(1) << "\n";
     return offsets;

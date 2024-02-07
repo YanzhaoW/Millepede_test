@@ -19,6 +19,8 @@ class EventBuilder
     void set_log_file(std::string_view filename);
     void set_offset_range(float val) { offset_range_ = val; }
     void set_error_y(float val) { detector_.set_err_y(val); }
+    void set_init_offset(float val) { init_offset_ = val; }
+    void set_init_scale(float val) { init_scale_ = val; }
     void init();
 
     [[nodiscard]] auto get_event_data() const -> const auto& { return event_data_; }
@@ -26,7 +28,12 @@ class EventBuilder
     auto get_rnd() -> TRandom3* { return &rnd_; }
 
   private:
-    float offset_range_ = 1.;
+    float init_offset_ = 0;
+    float init_scale_ = 1;
+
+    float offset_range_ = 0.1;
+    float scale_range_ = 1.;
+
     TRandom3 rnd_{ 0 };
     std::string offset_filename = "offsets.json";
     Detector detector_{ &rnd_ };
@@ -36,7 +43,7 @@ class EventBuilder
     json event_log_;
 
     void reset();
-    auto generate_offset_file(std::string_view filename) -> std::vector<float>;
+    auto generate_offset_file(std::string_view filename) -> std::vector<std::pair<float, float>>;
     static auto signal_filter(const std::vector<Signal>& signals) -> bool;
 };
 
@@ -58,9 +65,10 @@ void EventBuilder::build_event_data(DataPointConsumer auto UnaryOp)
     for (const auto& signal : output_signals_)
     {
         reset();
-        event_data_.locals.emplace_back(signal.pos_x);
-        event_data_.locals.emplace_back(1.);
+        event_data_.locals.emplace_back(signal.pos_x * init_scale_);
+        event_data_.locals.emplace_back(init_scale_);
         event_data_.globals.emplace_back(signal.bar_num, 1.);
+        // event_data_.globals.emplace_back(signal.bar_num + DEFAULT_BAR_NUM, signal.pos_y / init_scale_ - init_offset_);
         event_data_.measurement = signal.pos_y;
         event_data_.sigma = signal.err_y;
         UnaryOp(event_data_);

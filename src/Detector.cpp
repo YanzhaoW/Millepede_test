@@ -1,12 +1,13 @@
 #include "Detector.hpp"
 #include <TRandom3.h>
 #include <algorithm>
+#include <fmt/core.h>
 
 Detector::Detector(TRandom3* rnd, int num_of_bars)
     : num_of_bars_{ num_of_bars }
     , rnd_{ rnd }
 {
-    offsets_.resize(num_of_bars_);
+    scale_offsets_.resize(num_of_bars_);
 
     if (rnd == nullptr)
     {
@@ -18,23 +19,24 @@ Detector::Detector(TRandom3* rnd, int num_of_bars)
         throw std::logic_error("Number of bars in the detector must be even!");
     }
 }
-void Detector::set_offsets(const std::vector<float>& offsets)
+void Detector::set_offsets(const std::vector<std::pair<float, float>>& offsets)
 {
     if (offsets.size() != num_of_bars_)
     {
         throw std::logic_error("Cannot set the offsets with different size!");
     }
-    offsets_ = offsets;
+    scale_offsets_ = offsets;
 }
 
 void Detector::generate_signals(Line line, std::vector<Signal>& output_signals) const
 {
     output_signals.clear();
-    for (const auto offset : offsets_)
+    for (const auto [scale, offset] : scale_offsets_)
     {
         auto current_size = output_signals.size();
         auto pos_x = -(static_cast<float>(num_of_bars_) / 2 - static_cast<float>(current_size) - 0.5) * bar_width_;
-        auto pos_y = offset - line.offset + pos_x * line.slope;
+        auto pos_y = (offset + line.offset + pos_x * line.slope) * scale;
+        // fmt::print("offset: {}, scale: {}\n", offset, scale);
         output_signals.emplace_back(current_size + 1, pos_x, pos_y + rnd_->Gaus(0, error_y_), error_y_);
     }
     auto trail = std::ranges::partition(output_signals,

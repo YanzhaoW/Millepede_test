@@ -21,10 +21,6 @@ auto main() -> int
         event_builder.build_event_data([&mille](const DataPoint& data_point) { mille.mille(data_point); });
         mille.end();
     }
-    // mille.kill();
-
-    // const auto& offsets = event_builder.get_detector().get_offsets();
-    // fmt::print("{}\n", offsets);
 
     return 0;
 }
