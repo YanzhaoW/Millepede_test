@@ -2,6 +2,7 @@
 
 #include "Detector.hpp"
 #include <Mille.hpp>
+#include <PedeResReader.hpp>
 #include <TRandom3.h>
 #include <concepts>
 #include <string>
@@ -40,6 +41,7 @@ class EventBuilder
     std::vector<Signal> output_signals_;
     DataPoint event_data_;
     std::ofstream event_log_file_;
+    ResReader result_reader_;
     json event_log_;
 
     void reset();
@@ -62,13 +64,19 @@ void EventBuilder::build_event_data(DataPointConsumer auto UnaryOp)
     }
 
     event_log_ = json::array();
+    const auto& pars = result_reader_.get_pars();
     for (const auto& signal : output_signals_)
     {
         reset();
-        event_data_.locals.emplace_back(signal.pos_x * init_scale_);
-        event_data_.locals.emplace_back(init_scale_);
-        event_data_.globals.emplace_back(signal.bar_num, 1.);
-        // event_data_.globals.emplace_back(signal.bar_num + DEFAULT_BAR_NUM, signal.pos_y / init_scale_ - init_offset_);
+
+        auto scale = pars.empty() ? init_scale_ : pars.at(signal.bar_num + DEFAULT_BAR_NUM).value;
+        // auto scale_times_offset = pars.empty() ? init_offset_ * scale : pars.at(signal.bar_num).value;
+        auto offset = pars.empty() ? init_offset_ : pars.at(signal.bar_num).value;
+
+        event_data_.locals.emplace_back(signal.pos_x * scale);
+        event_data_.locals.emplace_back(scale);
+        event_data_.globals.emplace_back(signal.bar_num, scale);
+        event_data_.globals.emplace_back(signal.bar_num + DEFAULT_BAR_NUM, offset - 1);
         event_data_.measurement = signal.pos_y;
         event_data_.sigma = signal.err_y;
         UnaryOp(event_data_);

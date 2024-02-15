@@ -8,6 +8,7 @@ find_package(ROOT REQUIRED COMPONENTS Core MathCore)
 find_package(fmt REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(range-v3 REQUIRED)
+find_package(Boost REQUIRED)
 
 add_subdirectory(Mille)
 add_subdirectory(src)

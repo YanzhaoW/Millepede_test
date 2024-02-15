@@ -18,6 +18,7 @@ void EventBuilder::set_log_file(std::string_view filename)
 void EventBuilder::init()
 {
     auto bar_size = detector_.get_bar_size();
+    result_reader_.read_file();
     output_signals_.reserve(bar_size);
     auto input_file = std::ifstream(offset_filename, std::ios_base::in);
     if (input_file.is_open())
@@ -43,7 +44,7 @@ auto EventBuilder::generate_offset_file(std::string_view filename) -> std::vecto
 
     for (auto& [scale, offset] : offsets)
     {
-        scale = static_cast<float>(rnd_.Uniform(scale_range_ - 0.001, scale_range_));
+        scale = static_cast<float>(rnd_.Uniform(scale_range_ - 0.01, scale_range_));
         offset = static_cast<float>(rnd_.Uniform(-offset_range_, offset_range_));
     }
     offsets.front().second = 0.F;
