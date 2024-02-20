@@ -5,11 +5,12 @@ test.bin
 Parameter
 1 0.0 -1.0
 50 0.0 -1.0
+51 0.8 -1.0
 
 threads 20
 
 method inversion       30 0.001 ! Gauss matrix inversion
-!chisqcut 100.0 100.0
+! chisqcut 100.0 100.0
 !dwfractioncut 3
 
 end

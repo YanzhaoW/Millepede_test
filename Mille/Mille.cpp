@@ -29,7 +29,7 @@ Mille::Mille(std::string_view outFileName, bool asBinary, bool writeZero)
     , is_zero_written_(writeZero)
 {
     output_file_.open(
-        outFileName,
+        outFileName.data(),
         (asBinary ? (std::ios::binary | std::ios::out | std::ios::trunc) : std::ios::out | std::ios::trunc));
     if (!output_file_.is_open())
     {

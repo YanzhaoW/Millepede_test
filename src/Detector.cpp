@@ -35,7 +35,7 @@ void Detector::generate_signals(Line line, std::vector<Signal>& output_signals) 
     {
         auto current_size = output_signals.size();
         auto pos_x = -(static_cast<float>(num_of_bars_) / 2 - static_cast<float>(current_size) - 0.5) * bar_width_;
-        auto pos_y = (offset + line.offset + pos_x * line.slope) * scale;
+        auto pos_y = (offset + line.offset + pos_x * line.slope) / scale;
         // fmt::print("offset: {}, scale: {}\n", offset, scale);
         output_signals.emplace_back(current_size + 1, pos_x, pos_y + rnd_->Gaus(0, error_y_), error_y_);
     }

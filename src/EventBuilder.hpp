@@ -18,15 +18,36 @@ class EventBuilder
     EventBuilder() = default;
     void build_event_data(DataPointConsumer auto UnaryOp);
     void set_log_file(std::string_view filename);
-    void set_offset_range(float val) { offset_range_ = val; }
-    void set_error_y(float val) { detector_.set_err_y(val); }
-    void set_init_offset(float val) { init_offset_ = val; }
-    void set_init_scale(float val) { init_scale_ = val; }
+    void set_offset_range(float val)
+    {
+        offset_range_ = val;
+    }
+    void set_error_y(float val)
+    {
+        detector_.set_err_y(val);
+    }
+    void set_init_offset(float val)
+    {
+        init_offset_ = val;
+    }
+    void set_init_scale(float val)
+    {
+        init_scale_ = val;
+    }
     void init();
 
-    [[nodiscard]] auto get_event_data() const -> const auto& { return event_data_; }
-    [[nodiscard]] auto get_detector() const -> const auto& { return detector_; }
-    auto get_rnd() -> TRandom3* { return &rnd_; }
+    [[nodiscard]] auto get_event_data() const -> const auto&
+    {
+        return event_data_;
+    }
+    [[nodiscard]] auto get_detector() const -> const auto&
+    {
+        return detector_;
+    }
+    auto get_rnd() -> TRandom3*
+    {
+        return &rnd_;
+    }
 
   private:
     float init_offset_ = 0;
@@ -73,11 +94,13 @@ void EventBuilder::build_event_data(DataPointConsumer auto UnaryOp)
         // auto scale_times_offset = pars.empty() ? init_offset_ * scale : pars.at(signal.bar_num).value;
         auto offset = pars.empty() ? init_offset_ : pars.at(signal.bar_num).value;
 
-        event_data_.locals.emplace_back(signal.pos_x * scale);
-        event_data_.locals.emplace_back(scale);
-        event_data_.globals.emplace_back(signal.bar_num, scale);
-        event_data_.globals.emplace_back(signal.bar_num + DEFAULT_BAR_NUM, offset - 1);
-        event_data_.measurement = signal.pos_y;
+        event_data_.locals.emplace_back(signal.pos_x);
+        event_data_.locals.emplace_back(1);
+        event_data_.globals.emplace_back(signal.bar_num, 100.);
+        event_data_.globals.emplace_back(signal.bar_num + DEFAULT_BAR_NUM, -signal.pos_y);
+        // event_data_.globals.emplace_back(signal.bar_num + DEFAULT_BAR_NUM, -1);
+        // event_data_.measurement = signal.pos_y * scale;
+        event_data_.measurement = 0.F;
         event_data_.sigma = signal.err_y;
         UnaryOp(event_data_);
 

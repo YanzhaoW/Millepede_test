@@ -8,9 +8,9 @@
 
 auto main() -> int
 {
-    constexpr auto num_of_events = 1000000;
+    constexpr auto num_of_events = 500000;
     auto event_builder = EventBuilder{};
-    event_builder.set_offset_range(1.);
+    event_builder.set_offset_range(10.);
     event_builder.set_init_scale(1.F);
     event_builder.set_error_y(0.3);
 
